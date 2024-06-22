@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/services.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link active dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(categoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/products(categoryId=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a class="link" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+</nav>
+<div class="profile-grid">
+    <aside class="sidebar">
+        <div class="filters">
+            <div class="title">
+            <h4>Filtrează după categorie</h4>
+            </div>
+            <form action="#" th:action="@{/products}" method="get">
+                <input type="hidden" th:value="${selectedCategories}"/>
+                <ul class="filter-list list-unstyled">
+                    <li th:each="subcategory : ${CategorySubcategories}">
+                        <input type="checkbox"
+                               th:value="${subcategory.id}"
+                               th:id="${'subcategory-' + subcategory.id}"
+                               th:name="categoryId"
+                               th:checked="${selectedCategories != null && selectedCategories.contains(subcategory.id)}"/>
+                        <label th:for="${'subcategory-' + subcategory.id} " th:text="${subcategory.name}"></label>
+                    </li>
+                </ul>
+
+                <div class="title">
+                <h4>Filtrează după tipul evenimentului</h4>
+                </div>
+                <ul class="filter-list list-unstyled">
+                    <li th:each="eventType : ${eventTypes}">
+                        <input type="checkbox"
+                               th:value="${eventType.id}"
+                               th:id="${'eventType-' + eventType.id}"
+                               th:checked="${selectedEventTypes != null && selectedEventTypes.contains(eventType.id)}"
+                               th:name="eventTypeId"/>
+                        <label th:for="${'eventType-' + eventType.id}" th:text="${eventType.name}"></label>
+                    </li>
+                </ul>
+
+                <div class="title">
+                <h4>Filtrează după locaţie</h4>
+                </div>
+                <div class="dropdown-filter">
+                <select name="locationId">
+                    <option value="">Unde?</option>
+                    <option th:each="location : ${locations}"
+                            th:value="${location.id}"
+                            th:text="${location.address}"
+                            th:checked="${selectedLocation != null && location.id == selectedLocation}"></option>
+                </select>
+                </div>
+                <button type="submit" class="submit">Filtrează</button>
+            </form>
+        </div>
+    </aside>
+    <div class="main-content">
+        <div class="main-title">Rezultate pentru ' <span th:text="${query}"></span>'</div>
+        <div class="product-types-container row">
+            <div th:each="product, iterStat : ${products}" class="product-type col-lg-3 col-md-6 col-sm-6 col-12 mb-4">
+                <a class="product-type-link" th:href="@{/products/product/{id}(id=${product.id})}">
+                    <img th:if="${!product.photos.isEmpty()}"
+                         th:src="'/uploads/' + ${product.photos[0].fileName}"
+                         th:alt="'Image of ' + ${product.name}"
+                         class="product-image" />
+                    <span class="product-label" th:text="${product.name}"></span>
+                </a>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <a th:if="${page.number > 0}" th:href="@{/products(page=${page.number - 1}, size=${page.size}, total=${page.totalPages})}">Precedenta</a>
+            <span th:text="${page.number + 1} + ' din ' + ${page.totalPages}"></span>
+            <a th:if="${page.number + 1 < page.totalPages}" th:href="@{/products(page=${page.number + 1}, size=${page.size}, total=${page.totalPages})}">Următoarea</a>
+        </div>
+    </div>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="/scripts/dropdown.js"></script>
+
+</body>
+</html>

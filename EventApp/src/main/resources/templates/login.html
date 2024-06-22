@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/login.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu" th:if="${#authorization.expression('isAuthenticated()')}">
+    </div>
+    <div class="nav-button">
+        <a class="btn white-btn" href="#" id="loginBtn" onclick="login()" th:href="@{/login}">Logare</a>
+        <a class="btn" href="#" id="registerBtn" onclick="register()" th:href="@{/registration}">Înregistrare</a>
+    </div>
+
+</nav>
+<div class="profile-grid">
+    <div class="main-content">
+        <form class="form-box" method="post" th:action="@{/login}" th:object="${user}">
+            <div class="login-container" id="login">
+                <div class="top">
+                    <header>Logare</header>
+                </div>
+                <div class="input-box">
+                    <input class="input-field" id="email" placeholder="Email" required th:field="*{username}"
+                           type="text"/>
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input class="input-field" id="password" placeholder="Parolă" required th:field="*{password}"
+                           type="password"/>
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input class="submit" type="submit" value="Intră în cont">
+                </div>
+                <div class="two-col">
+                    <div class="one">
+                    </div>
+                    <div class="two">
+                        <label><a th:href="@{/password-request}">Ai uitat parola?</a></label>
+                    </div>
+                </div>
+                <div class="top">
+                    <span>Nu ai un cont? <a href="#" onclick="register()" th:href="@{/registration}">Înregistrează-te aici</a></span>
+                </div>
+                <div th:if="${param.error}">
+                    <div class="alert">Date introduse greşit. Te rog încearcă din nou.</div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="/scripts/login.js"></script>
+
+</body>
+</html>

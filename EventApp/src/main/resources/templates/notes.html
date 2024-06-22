@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/notes.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu responsive" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(categoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/products(categoryId=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a class="link active" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+</nav>
+
+<div class="profile-grid">
+    <aside class="sidebar">
+        <nav class="nav-sidebar">
+            <h3>Esenţial în #PLANIVENT</h3>
+            <div class="general-list">
+            <ul class="list-unstyled" style="text-align: left; margin-left: 25px;">
+                <li th:each="task : ${tasks}" th:id="'todo-task-general-task-' + ${task.uuid}">
+                        <input type="checkbox"
+                               th:id="'generalTaskCheckbox' + ${task.uuid}"
+                               th:data-uuid="${task.uuid}"
+                               th:data-is-personal="false"
+                               class="task-checkbox"
+                               onchange="updateTaskStatusFromAttribute(this)"/>
+                        <label th:for="'generalTaskCheckbox' + ${task.uuid}" th:text="${task.name}" th:title="${task.description}" style="word-wrap: break-word;"></label>
+                </li>
+            </ul>
+            </div>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="title">
+            <h2>Notiţele mele</h2>
+        </div>
+
+        <div class="task-container">
+            <div class="to-do-list">
+                <h3>De făcut</h3>
+                <ul class="list-unstyled" style="text-align: left; margin-left: 25px;">
+                    <li th:each="userTask : ${toDoTasks}" th:id="'todo-task-user-task-' + ${userTask.uuid}">
+                        <input type="checkbox"
+                               th:id="'toDoUserTaskCheckbox' + ${userTask.uuid}"
+                               th:checked="${userTask.status}"
+                               th:data-uuid="${userTask.uuid}"
+                               th:data-is-personal="true"
+                               class="task-checkbox"
+                               onchange="updateTaskStatusFromAttribute(this)"/>
+                        <label th:for="'toDoUserTaskCheckbox' + ${userTask.uuid}" th:text="${userTask.taskName}" th:title="${userTask.description}" th:class="${userTask.status} ? 'true' : ''" style="word-wrap: break-word;"></label>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-1 d-flex align-items-center justify-content-center">
+                <div style="height: 100%; border-left: 2px solid #436850;"></div>
+            </div>
+            <div class="done-list">
+                <h3>Terminat</h3>
+                <ul class="list-unstyled" style="text-align: left; margin-left: 25px;">
+                    <li th:each="userTask : ${doneTasks}" th:id="'done-task-' + ${userTask.uuid}">
+                        <input type="checkbox"
+                               th:id="'doneUserTaskCheckbox' + ${userTask.uuid}"
+                               th:data-uuid="${userTask.uuid}"
+                               th:data-is-personal="true"
+                               class="task-checkbox"
+                               th:checked="${userTask.status}"
+                               onchange="updateTaskStatusFromAttribute(this)"/>
+                        <label th:for="'doneUserTaskCheckbox' + ${userTask.uuid}" th:text="${userTask.taskName}" th:title="${userTask.description}" th:class="${userTask.status} ? 'true' : ''" style="word-wrap: break-word;"></label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <form class="form-box" th:action="@{/tasks}" method="post">
+            <input type="hidden" name="userId" th:value="${loggedInUserId}"/>
+            <input class="input-detail" type="text" id="taskName" name="taskName" required placeholder="Nume task nou"/>
+            <input class="input-detail" type="text" id="description" name="description" required placeholder="Detalii"/>
+            <input class="submit" type="submit" value="Adaugă task nou"/>
+        </form>
+
+    </main>
+</div>
+
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="/scripts/dropdown.js"></script>
+<script src="/scripts/notes.js"></script>
+</body>
+</html>

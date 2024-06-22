@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/my-products.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu responsive" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(categoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/products(categoryId=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a class="link" id="notes-btn" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn white-btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+    <div class="nav-menu-btn">
+        <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+    </div>
+</nav>
+
+<div class="profile-grid">
+    <aside class="sidebar">
+        <nav class="nav-sidebar">
+            <button id="personal-info-btn" >Informaţii personale</button>
+            <button id="my-products-btn" class="active">Produsele mele</button>
+            <button id="calendar-btn">Calendar</button>
+            <button id="messages-btn">Mesajele mele</button>
+            <button id="change-password-btn">Schimbare parolă</button>
+            <button id="logout-btn">Delogare</button>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="title">
+            <h2>Produsele mele</h2>
+        </div>
+        <div>
+            <table class="table" id="productsTable" border="1" cellspacing="0" cellpadding="5">
+                <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Descriere</th>
+                    <th>Preț</th>
+                    <th>Adresă</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                    <th>Acțiuni</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:id="'productRow' + ${product.id}" th:each="product : ${products}">
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.description}"></td>
+                    <td th:text="${product.price}"></td>
+                    <td th:text="${product.address}"></td>
+                    <td th:text="${product.phone}"></td>
+                    <td th:text="${product.mail}"></td>
+                    <td>
+                        <button type="button" class="edit" data-toggle="modal" data-target="#editProductModal"
+                                th:data-id="${product.id}" th:data-name="${product.name}"
+                                th:data-description="${product.description}" th:data-price="${product.price}"
+                                th:data-address="${product.address}" th:data-phone="${product.phone}"
+                                th:data-mail="${product.mail}" th:attr="data-categories=${#strings.listJoin(product.categoryIds, ',')},
+                data-subcategories=${#strings.listJoin(product.subcategoryIds, ',')},
+                data-locations=${#strings.listJoin(product.locationIds, ',')},
+                data-event-types=${#strings.listJoin(product.eventTypeIds, ',')}">Editare</button>
+                        <button type="button" class="delete" th:onclick="'deleteProduct(' + ${product.id} + ');'">Ștergere</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h5 class="modal-title" id="editProductModalLabel">Editează produs</h5>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editProductForm" th:action="@{/user/products/edit-product/{id}}" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                                <input type="hidden" id="edit-id" name="id">
+
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-name">Nume</label>
+                                    <input type="text" class="input-detail" id="edit-name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-description">Descriere</label>
+                                    <textarea class="input-description" id="edit-description" name="description" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-price">Preţ</label>
+                                    <input type="number" class="input-detail" id="edit-price" name="price" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-address">Adresă</label>
+                                    <input type="text" class="input-detail" id="edit-address" name="address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-phone">Telefon</label>
+                                    <input type="text" class="input-detail" id="edit-phone" name="phone" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-email">Email</label>
+                                    <input type="text" class="input-detail" id="edit-email" name="mail" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-locations">Locaţii unde activezi</label>
+                                    <div class="checkbox-group" id="edit-locations">
+                                        <div th:each="location : ${allLocations}" class="checkbox-item">
+                                            <input type="checkbox" th:id="${'edit-location-' + location.id}" name="locationIds" th:value="${location.id}">
+                                            <label th:for="${'edit-location-' + location.id}" th:text="${location.address}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-event-types">Tipul de eveniment</label>
+                                    <div class="checkbox-group" id="edit-event-types">
+                                        <div th:each="eventType : ${allEventTypes}" class="checkbox-item">
+                                            <input type="checkbox" th:id="${'edit-eventType-' + eventType.id}" name="eventTypeIds" th:value="${eventType.id}" >
+                                            <label th:for="${'edit-eventType-' + eventType.id}" th:text="${eventType.name}"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for="edit-photos">Încarcă imagini</label>
+                                    <input type="file" class="input-detail" id="edit-photos" name="photos" multiple>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-secondary" data-dismiss="modal">Renunţă</button>
+                                    <button type="submit" class="btn-primary">Salvează</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="submit" data-toggle="modal" data-target="#createProductModal">
+            Adaugă produs nou
+        </button>
+
+        <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createProductModalLabel">Adaugă produs nou</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="newProductForm" th:action="@{/user/products/new-product}" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="input-label" for="new-name">Nume</label>
+                                <input type="text" class="input-detail" id="new-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-description">Descriere</label>
+                                <textarea class="input-description" id="new-description" name="description" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-price">Preţ</label>
+                                <input type="number" class="input-detail" id="new-price" name="price" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-address">Adresă</label>
+                                <input type="text" class="input-detail" id="new-address" name="address" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-phone">Telefon</label>
+                                <input type="text" class="input-detail" id="new-phone" name="phone" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-email">Email</label>
+                                <input type="text" class="input-detail" id="new-email" name="mail" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-categories">Categorie</label>
+                                <div class="checkbox-group" id="new-categories">
+                                    <div th:each="category : ${allCategories}" class="checkbox-item">
+                                        <input type="checkbox" th:id="${'new-category-' + category.id}" th:name="categoryIds" th:value="${category.id}" class="category-checkbox" th:data-category-id="${category.id}" onchange="updateSubcategories();" />
+                                        <label th:for="${'new-category-' + category.id}" th:text="${category.name}"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-subcategories">Subcategorie</label>
+                                <div class="checkbox-group" id="new-subcategories"></div>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-locations">Locaţii unde activezi</label>
+                                <div class="checkbox-group" id="new-locations">
+                                    <div th:each="location : ${allLocations}" class="checkbox-item">
+                                        <input type="checkbox" th:id="${'new-location-' + location.id}" name="locationIds" th:value="${location.id}">
+                                        <label th:for="${'new-location-' + location.id}" th:text="${location.address}"></label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="input-label" for="new-event-types">Tipul de eveniment</label>
+                                <div class="checkbox-group" id="new-event-types">
+                                    <div th:each="eventType : ${allEventTypes}" class="checkbox-item">
+                                        <input type="checkbox" th:id="${'new-eventType-' + eventType.id}" name="eventTypeIds" th:value="${eventType.id}">
+                                        <label th:for="${'new-eventType-' + eventType.id}" th:text="${eventType.name}"></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="input-label" for="new-photos">Încarcă imagini</label>
+                                <input type="file" class="input-detail" id="new-photos" name="photos" multiple>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn-secondary" data-dismiss="modal">Renunţă</button>
+                            <button type="submit" class="btn-primary">Salvează</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="/scripts/user-profile.js"></script>
+<script src="/scripts/my-products.js"></script>
+
+</body>
+</html>

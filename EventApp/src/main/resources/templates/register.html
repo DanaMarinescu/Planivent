@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/register.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu" th:if="${#authorization.expression('isAuthenticated()')}">
+    </div>
+    <div class="nav-button">
+        <a class="btn" id="loginBtn" onclick="register()" href="#" th:href="@{/login}">Logare</a>
+        <a class="btn white-btn" id="registerBtn" onclick="login()" href="#" th:href="@{/registration}">Înregistrare</a>
+    </div>
+</nav>
+<div class="profile-grid">
+    <div class="main-content">
+<form class="form-box" th:action="@{/registration}" method="post" th:object="${user}">
+    <div class="login-container" id="login">
+        <div class="top">
+            <header>Înregistrare</header>
+        </div>
+        <div class="input-box">
+            <input type="text" class="input-field" placeholder=" Nume" id="name" th:field="*{name}" required/>
+            <i class="bx bx-user"></i>
+        </div>
+        <div class="input-box">
+            <input type="text" class="input-field" placeholder=" Email" id="email" th:field="*{email}" required/>
+            <i class="bx bx-user"></i>
+        </div>
+        <div class="input-box">
+            <input type="password" class="input-field" placeholder=" Parolă" id="password" th:field="*{password}" required/>
+            <i class="bx bx-lock-alt"></i>
+        </div>
+        <div class="dropdown-container">
+            <select id="role" th:field="*{role}" class="input-field form-control-lg">
+            <option value="CUSTOMER">Caut servicii</option>
+            <option value="PROVIDER">Ofer servicii</option>
+        </select>
+        </div>
+        <div class="input-box">
+            <input type="submit" class="submit" value="Înregistrare">
+        </div>
+
+        <div class="top">
+            <span>Ai deja un cont? <a href="#" onclick="login()" th:href="@{/login}">Logare</a></span>
+        </div>
+        <div th:if="${registrationError}" class="alert">
+            <p th:text="${registrationError}"></p>
+        </div>
+    </div>
+</form>
+    </div>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="/scripts/register.js"></script>
+
+</body>
+</html>

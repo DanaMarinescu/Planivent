@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/footer.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(categoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/products(categoryId=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a class="link" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+
+</nav>
+<div class="profile-grid">
+    <div class="main-content">
+        <h2 class="title">Contact</h2>
+        <div class="announcement">Pentru a vă bucura de toate beneficiile platformei Planivent, este necesară crearea unui cont.
+            Pentru contactarea directă a echipei Planivent legată de anumite solicitări, inconveninţe sau orice întrebare, punem la dispoziţie următoarele date de contact:
+            <ul>
+                <li style="text-align: left">Telefon: +40 760 565 654</li>
+                <li style="text-align: left">Email: planivent@contact.com</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="/scripts/dropdown.js"></script>
+
+</body>
+</html>

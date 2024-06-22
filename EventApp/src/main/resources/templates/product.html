@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" type="text/css" href="/css/product.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(categoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/products(categoryId=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a class="link" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+
+</nav>
+<div class="profile-grid">
+    <div class="main-content">
+        <h1 class="title" th:text="${product.name}">Nume produs</h1>
+        <div class="container">
+            <div class="details_container template1">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="gallery-container">
+                            <div id="member_gallery" class="carousel slide" data-ride="carousel">
+                                <ol class="carousel-indicators">
+                                    <li data-target="#member_gallery" data-slide-to="0" class="active"></li>
+                                    <li data-target="#member_gallery" data-slide-to="1"></li>
+                                    <li data-target="#member_gallery" data-slide-to="2"></li>
+                                </ol>
+
+                                <div class="carousel-inner">
+                                    <div class="item active">
+                                        <img th:src="'/uploads/' + ${product.photos[0].fileName}" th:alt="'Image of ' + ${product.name}">
+                                    </div>
+                                    <div class="item" th:each="photo, stat : ${product.photos}" th:if="${stat.index > 0}">
+                                        <img th:src="'/uploads/' + ${photo.fileName}" th:alt="'Image of ' + ${product.name}">
+                                    </div>
+                                </div>
+
+                                <a class="left carousel-control" href="#member_gallery" data-slide="prev">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                    <span class="sr-only">Precedenta</span>
+                                </a>
+                                <a class="right carousel-control" href="#member_gallery" data-slide="next">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                    <span class="sr-only">Următoarea</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="contact-details">
+                            <h4>Câteva cuvinte despre noi</h4>
+                            <p th:text="${product.description}">Descrierea produsului</p>
+                            <h4>Detalii contact şi tarifare</h4>
+                            <p><strong>Telefon:</strong> <a th:href="'tel:' + ${product.phone}" th:text="${product.phone}"></a></p>
+                            <p><strong>Email:</strong> <a th:href="'mailto:' + ${product.mail}" th:text="${product.mail}"></a></p>
+                            <p><strong>Disponibil în ţară:</strong></p>
+                            <ul>
+                                <li th:each="location : ${product.locations}" th:text="${location.address}">Location Name</li>
+                            </ul>
+                            <p><strong>Preţ de început:</strong> <span th:text="${product.price}">Price</span> lei</p>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="event-booking">
+                            <h3 style="color: white">Lasă-ne un mesaj</h3>
+                            <form method="post" th:action="@{/products/submit-message}" th:object="${message}" onsubmit="setCurrentDateTime()">
+                                <input type="hidden" name="productId" th:value="${product.id}"/>
+                                <input class="input-detail" type="text" name="event_name" placeholder="Numele evenimentului" th:field="${message.eventName}">
+                                <textarea class="input-description" name="event_description" placeholder="Descriere eveniment" th:field="${message.messageText}"></textarea>
+                                <input type="hidden" id="startDate" name="startDate" th:field="${message.startDate}">
+                                <input class="submit" type="submit" value="Trimite Mesaj">
+                            </form>
+                        </div>
+
+                        <div class="review-form">
+                            <h3 style="color: white">Adaugă un Review</h3>
+                            <form method="post" th:action="@{/products/submit-review}" th:object="${review}">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                <input type="hidden" name="productId" th:value="${product.id}"/>
+                                <input class="input-detail" type="text" name="review_title" placeholder="Titlul review-ului" th:field="${review.title}">
+                                <textarea class="input-description" name="review_text" placeholder="Textul review-ului" th:field="${review.description}"></textarea>
+                                <input type="submit" value="Trimite Review-ul" class="submit">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-details">
+                <div class="reviews-section">
+                    <h4>Recenzii ( <span th:text="${#lists.size(reviews)}">0</span> )</h4>
+                    <div class="reviews-container">
+                        <div th:each="review, stat : ${reviews}" th:classappend="${stat.count > 4} ? 'hidden' : ''" class="review-item">
+                            <h4 th:text="${review.title}">Titlu recenzie</h4>
+                            <h6 th:text="${review.user.getName()}">Adăugat de</h6>
+                            <h6 th:text="${review.date}">Data Review</h6>
+                            <p th:text="${review.description}">Textul recenziei</p>
+                        </div>
+                        <div class="view-more" th:if="${#lists.size(reviews) > 4}">
+                            <a href="#" id="viewMoreLink">vezi mai mult...</a>
+                        </div>
+                        <p th:if="${#lists.isEmpty(product.reviews)}">Nu există recenzii încă.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-details">
+            <h4>Unde ne găsiţi sediul?</h4>
+            <div id="map"></div>
+                <script th:inline="javascript">
+                    /*<![CDATA[*/
+                    function initMap() {
+                        var address = /*[[${product.address}]]*/ 'Bucuresti, Romania';
+                        var geocoder = new google.maps.Geocoder();
+
+                        geocoder.geocode({ 'address': address }, function(results, status) {
+                            if (status === google.maps.GeocoderStatus.OK) {
+                                var map = new google.maps.Map(document.getElementById('map'), {
+                                    zoom: 13,
+                                    center: results[0].geometry.location
+                                });
+
+                                var marker = new google.maps.Marker({
+                                    position: results[0].geometry.location,
+                                    map: map,
+                                    title: address
+                                });
+                            } else {
+                                console.error('Nu s-a putut realiza localizarea - motiv: ' + status);
+                            }
+                        });
+                    }
+                    /*]]>*/
+                </script>
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5fACXdnAS7ah_-Tf587QLsE1EYRrTNA4&callback=initMap" async defer></script>
+            </div>
+        </div>
+    </div>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="/scripts/product.js"></script>
+
+</body>
+</html>

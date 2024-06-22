@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/userProfile.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu responsive" id="navMenu">
+        <ul>
+            <li><a class="link" href="#" th:href="@{/home}">Acasă</a></li>
+            <li><a class="link" href="#" th:href="@{/blog}">Blog</a></li>
+            <li class="dropdown">
+                <a class="link dropdown-toggle" href="#" role="button" id="categoriesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categorii</a>
+                <div class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                    <th:block th:each="category : ${allCategories}">
+                        <div class="category-section">
+                            <a class="dropdown-item" th:href="@{/products(categoryId=${category.id})}" th:text="${category.name}"></a>
+                            <div th:if="${not #lists.isEmpty(category.subcategories)}" class="subcategory-grid">
+                                <div th:each="subcategory, subIterStat : ${category.subcategories}" th:if="${subIterStat.index < 4}" class="subcategory-item">
+                                    <a th:href="@{/products(subcategoryId=${subcategory.id})}" th:text="${subcategory.name}"></a>
+                                </div>
+                                <div th:if="${category.subcategories.size() > 4}">
+                                    <a th:href="@{/category(id=${category.id})}" class="see-more">vezi mai mult...</a>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </li>
+            <li><a id="notes-btn" class="link" href="#" th:href="@{/tasks}">Notiţele mele</a></li>
+        </ul>
+    </div>
+    <div class="nav-button">
+        <a class="btn white-btn" href="#" id="myAccountBtn" th:href="@{/user/profile}">Contul meu</a>
+        <a class="btn" id="logoutBtn" th:href="@{/logout}">Delogare</a>
+    </div>
+    <div class="nav-menu-btn">
+        <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+    </div>
+</nav>
+
+<div class="profile-grid">
+    <aside class="sidebar">
+        <nav class="nav-sidebar">
+            <button id="personal-info-btn" class="active">Informaţii personale</button>
+            <button id="my-products-btn" th:each="role : ${roles}" th:if="${role.id == user.role.id && role.role == 'Provider'}">Produsele mele</button>
+            <button id="calendar-btn">Calendar</button>
+            <button id="messages-btn">Mesajele mele</button>
+            <button id="change-password-btn">Schimbare parolă</button>
+            <button id="logout-btn">Delogare</button>
+        </nav>
+    </aside>
+    <main class="main-content">
+        <div class="title">
+            <h2>Profilul meu</h2>
+        </div>
+        <div class="alert">
+            <div>Detaliile de mai jos vor fi vizibile doar utilizatorilor cu care interacţionaţi.</div>
+        </div>
+        <div class="title">
+            <h4>Detalii Generale</h4>
+        </div>
+
+        <form class="form-box" th:action="@{/user/profile}" id="userForm" method="post" th:object="${user}">
+            <div class="alert-danger" th:if="${error}" th:text="${error}">Mesajul de validare</div>
+
+            <input id="userId" name="id" th:field="*{id}" type="hidden"/>
+            <div class="alert">
+            <span th:each="role : ${roles}" th:if="${role.id eq user.role.id}" th:text="'Eşti înregistrat cu rolul de ' + ${role.role}">Rolul cu care este utilizatorul înregistrat</span>
+            </div>
+            <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+            <label class="input-label" for="userName">Nume de utilizator</label>
+            <input class="input-detail" id="userName" th:value="${user.name}" type="text" name="name"/>
+
+            <label class="input-label" for="userEmail">Adresă de email</label>
+            <input class="input-detail" id="userEmail" readonly th:value="${user.email}" type="text" name="email"/>
+
+            <label class="input-label" for="userPhone">Număr de telefon</label>
+            <input class="input-detail" id="userPhone" th:value="${user.phone}" type="text" name="phone"/>
+
+            <input class="submit" type="submit" value="Salvează modificările"/>
+        </form>
+
+    </main>
+</div>
+<footer class="footer-grid">
+    <div class="footer-section">
+        <h3>Cauţi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/customer-1}">Cum contactez un furnizor?</a></li>
+            <li><a href="#" th:href="@{/customer-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Despre Planivent</h3>
+        <ul>
+            <li><a href="#" th:href="@{/general-1}">Despre Planivent</a></li>
+            <li><a href="#" th:href="@{/general-2}">Contact</a></li>
+        </ul>
+    </div>
+    <div class="footer-section">
+        <h3>Oferi servicii?</h3>
+        <ul>
+            <li><a href="#" th:href="@{/provider-1}">Cum listez produsele?</a></li>
+            <li><a href="#" th:href="@{/provider-2}">Ce facilităţi am?</a></li>
+        </ul>
+    </div>
+</footer>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="/scripts/user-profile.js"></script>
+
+</body>
+</html>

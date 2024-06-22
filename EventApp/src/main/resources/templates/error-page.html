@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Planivent</title>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-logo">
+        <p>PLANIVENT</p>
+    </div>
+    <div class="nav-menu" id="navMenu" th:if="${#authorization.expression('isAuthenticated()')}">
+    </div>
+    <div class="nav-button">
+        <a class="btn white-btn" href="#" id="loginBtn" onclick="login()" th:href="@{/login}">Logare</a>
+        <a class="btn" href="#" id="registerBtn" onclick="register()" th:href="@{/registration}">Înregistrare</a>
+    </div>
+    <div class="nav-menu-btn">
+        <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+    </div>
+</nav>
+<div th:if="${error}" th:text="${error}" class="alert-danger"></div>
+<div th:if="${errorMessage}" th:text="${errorMessage}" class="alert-danger"></div>
+
+<script>
+
+    function myMenuFunction() {
+        var i = document.getElementById("navMenu");
+        if (i.className === "nav-menu") {
+            i.className += " responsive";
+        } else {
+            i.className = "nav-menu";
+        }
+    }
+
+    var a = document.getElementById("loginBtn");
+    var b = document.getElementById("registerBtn");
+    var x = document.getElementById("login");
+    var y = document.getElementById("register");
+
+    function login() {
+        x.style.left = "4px";
+        y.style.right = "-520px";
+        a.className += " white-btn";
+        b.className = "btn";
+        x.style.opacity = 1;
+        y.style.opacity = 0;
+    }
+
+    function register() {
+        x.style.left = "-510px";
+        y.style.right = "5px";
+        a.className = "btn";
+        b.className += " white-btn";
+        x.style.opacity = 0;
+        y.style.opacity = 1;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var loginBtn = document.getElementById('loginBtn');
+        var registerBtn = document.getElementById('registerBtn');
+        var loginForm = document.getElementById('login');
+        var registerForm = document.getElementById('register');
+
+        loginBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default anchor click behavior
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            loginBtn.classList.add('white-btn');
+            registerBtn.classList.remove('white-btn');
+        });
+
+        registerBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default anchor click behavior
+            registerForm.style.display = 'block';
+            loginForm.style.display = 'none';
+            registerBtn.classList.add('white-btn');
+            loginBtn.classList.remove('white-btn');
+        });
+    });
+</script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+    }
+    body{
+        background-size: cover;
+        background: #adbc9f url("/static/assets/home.jpg") no-repeat fixed;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .navbar{
+        position: fixed;
+        top: 0;
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        height: 100px;
+        line-height: 100px;
+        background: linear-gradient(rgb(67, 104, 80), transparent);
+        z-index: 100;
+    }
+    .nav-logo p{
+        color: white;
+        font-size: 25px;
+        font-weight: 600;
+    }
+    .nav-menu ul{
+        display: flex;
+    }
+    .nav-menu ul li{
+        list-style-type: none;
+    }
+    .nav-menu ul li .link{
+        text-decoration: none;
+        font-weight: 500;
+        color: #ffffff;
+        padding-bottom: 15px;
+        margin: 0 25px;
+    }
+    .link:hover, .active{
+        border-bottom: 2px solid #ffffff;
+    }
+    .nav-button .btn{
+        width: 130px;
+        height: 40px;
+        font-weight: 500;
+        font-size: 15px;
+        background: rgba(255, 255, 255, 0.4);
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: .3s ease;
+        align-content: center;
+        color: black;
+    }
+    .btn:hover{
+        background: rgba(255, 255, 255, 0.3);
+    }
+    #logoutBtn{
+        margin-left: 15px;
+    }
+    .btn.white-btn{
+        background: rgba(255, 255, 255, 0.7);
+    }
+    .btn.btn.white-btn:hover{
+        background: rgba(255, 255, 255, 0.4);
+    }
+    .nav-menu-btn{
+        display: none;
+    }
+    .top span{
+        color: #fff;
+        font-size: small;
+        padding: 10px 0;
+        display: flex;
+        justify-content: center;
+    }
+    .top span a{
+        font-weight: 500;
+        color: #fff;
+        margin-left: 5px;
+    }
+    header{
+        color: #ffffff;
+        font-size: 30px;
+        text-align: center;
+        padding: 10px 0 30px 0;
+        margin-top: 20px;
+    }
+    ::-webkit-input-placeholder{
+        color: #ffffff;
+    }
+    .input-box i{
+        position: relative;
+        top: -35px;
+        left: 17px;
+        color: #fff;
+    }
+    .two-col .one{
+        display: flex;
+        gap: 5px;
+    }
+    .two label a{
+        text-decoration: none;
+        color: #fff;
+    }
+    .two label a:hover{
+        text-decoration: underline;
+    }
+   .alert-danger {
+        padding: 8px;
+        height: 50px;
+       font-size: 30px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+    }
+    @media only screen and (max-width: 768px){
+        .nav-button{
+            display: none;
+        }
+        .nav-menu.responsive{
+            top: 100px;
+        }
+        .nav-menu{
+            position: absolute;
+            top: -800px;
+            display: flex;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.3);
+            width: 100%;
+            height: 90vh;
+            backdrop-filter: blur(20px);
+            transition: .3s;
+        }
+        .nav-menu ul{
+            flex-direction: column;
+            text-align: center;
+        }
+        .nav-menu-btn{
+            display: block;
+        }
+        .nav-menu-btn i{
+            font-size: 25px;
+            color: #ffffff;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: .3s;
+        }
+        .nav-menu-btn i:hover{
+            background: rgba(255, 255, 255, 0.2);
+        }
+    }
+    @media only screen and (max-width: 540px) {
+        .form-box{
+            width: 100%;
+            height: 500px;
+        }
+        .login-container{
+            width: 100%;
+            padding: 0 20px;
+        }
+        .register-container .two-forms{
+            flex-direction: column;
+            gap: 0;
+        }
+    }
+
+    @media only screen and (max-width: 786px) {
+        .nav-menu-btn i {
+            font-size: 35px;
+        }
+    }
+</style>
+</body>
+</html>
